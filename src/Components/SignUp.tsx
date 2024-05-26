@@ -10,20 +10,33 @@ import {
   FormControl,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
 } from "@mui/material";
 
 import { Link } from "react-router-dom";
 import { ROUTE_SIGNIN } from "../shared/routes/routes.constant";
+import { User } from "../shared/types/user.type";
+import axios from "axios";
+import { API_BASE_URL } from "../shared/constants";
 
 export default function SignUp() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [user, setUser] = React.useState<User>();
+  // const [error, setError] = React.useState({});
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    console.log({ user });
+    try {
+      const createUser = await axios.post(`${API_BASE_URL}/users`, user);
+      console.log({ createUser });
+    } catch (err) {
+      console.log({ err });
+    }
+  };
+
+  const handleChange = (event: any) => {
+    const { name, value } = event.target;
+    setUser({ ...user, [name]: value } as any);
   };
 
   return (
@@ -45,11 +58,14 @@ export default function SignUp() {
             <Grid item xs={12} sm={6}>
               <TextField
                 name="firstName"
+                onChange={handleChange}
                 required
                 fullWidth
                 id="firstName"
                 label="First Name"
                 autoFocus
+                value={user?.firstName}
+                autoComplete="off"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -58,7 +74,10 @@ export default function SignUp() {
                 fullWidth
                 id="lastName"
                 name="lastName"
+                onChange={handleChange}
                 label="Last Name"
+                value={user?.lastName}
+                autoComplete="off"
               />
             </Grid>
             <Grid item xs={12} sm={8}>
@@ -66,23 +85,27 @@ export default function SignUp() {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
                 name="email"
-                autoComplete="email"
+                onChange={handleChange}
+                value={user?.email}
+                type="email"
+                label="Email"
+                autoComplete="off"
               />
             </Grid>
             <Grid item xs={12} sm={4}>
               <FormControl required fullWidth>
-                <InputLabel id="userRole">
-                  Role
-                </InputLabel>
+                <InputLabel id="userRole">Role</InputLabel>
                 <Select
+                  value={user?.userRole}
+                  onChange={handleChange}
                   id="userRole"
+                  name="userRole"
                   autoWidth
                   label="Role"
                 >
-                  <MenuItem value="Admin">Admin</MenuItem>
-                  <MenuItem value="Customer">Customer</MenuItem>
+                  <MenuItem value="admin">Admin</MenuItem>
+                  <MenuItem value="customer">Customer</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -90,11 +113,13 @@ export default function SignUp() {
               <TextField
                 required
                 fullWidth
+                onChange={handleChange}
+                value={user?.password}
                 name="password"
                 label="Password"
                 type="password"
                 id="password"
-                autoComplete="new-password"
+                autoComplete="off"
               />
             </Grid>
           </Grid>
